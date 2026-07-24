@@ -1,0 +1,108 @@
+using System.Diagnostics;
+using System.IO;
+using Microsoft.Win32;
+
+namespace TokenPet.Services;
+
+public sealed class StartupService
+{
+    private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
+    private const string EntryPrefix = "AgentPet-";
+
+    public string EntryName => EntryPrefix + SingleInstanceService.GetInstallId();
+
+    public string ExecutablePath => Path.GetFullPath(
+        Environment.ProcessPath
+        ?? Process.GetCurrentProcess().MainModule?.FileName
+        ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AgentPet.exe"));
+
+    public bool IsEnabled()
+    {
+        RemoveOrphanedEntries();
+        using var key = Registry.CurrentUser.OpenSubKey(RunKeyPath, false);
+        return FindCurrentExecutableEntryNames(key).Any();
+    }
+
+    public void Enable()
+    {
+        var executablePath = ExecutablePath;
+        if (!File.Exists(executablePath))
+            throw new InvalidOperationException("The running AgentPet executable could not be located.");
+
+        RemoveOrphanedEntries();
+        using var key = Registry.CurrentUser.CreateSubKey(RunKeyPath, true)
+            ?? throw new InvalidOperationException("The Windows startup registry key could not be opened.");
+        DeleteCurrentExecutableEntries(key);
+        key.SetValue(EntryName, Quote(executablePath), RegistryValueKind.String);
+    }
+
+    public void Disable()
+    {
+        using var key = Registry.CurrentUser.OpenSubKey(RunKeyPath, true);
+        DeleteCurrentExecutableEntries(key);
+    }
+
+    private static void RemoveOrphanedEntries()
+    {
+        using var key = Registry.CurrentUser.OpenSubKey(RunKeyPath, true);
+        if (key == null)
+            return;
+
+        foreach (var valueName in key.GetValueNames().Where(name =>
+                     name.StartsWith(EntryPrefix, StringComparison.OrdinalIgnoreCase)))
+        {
+            var command = key.GetValue(valueName) as string;
+            var executable = ExtractExecutablePath(command);
+            if (executable == null || File.Exists(executable))
+                continue;
+            key.DeleteValue(valueName, false);
+        }
+    }
+
+    private void DeleteCurrentExecutableEntries(RegistryKey? key)
+    {
+        if (key == null)
+            return;
+
+        foreach (var valueName in FindCurrentExecutableEntryNames(key).ToArray())
+            key.DeleteValue(valueName, false);
+    }
+
+    private IEnumerable<string> FindCurrentExecutableEntryNames(RegistryKey? key)
+    {
+        if (key == null)
+            yield break;
+
+        foreach (var valueName in key.GetValueNames().Where(name =>
+                     name.StartsWith(EntryPrefix, StringComparison.OrdinalIgnoreCase)))
+        {
+            if (IsCurrentExecutableCommand(key.GetValue(valueName) as string))
+                yield return valueName;
+        }
+    }
+
+    private bool IsCurrentExecutableCommand(string? command)
+    {
+        var executable = ExtractExecutablePath(command);
+        return executable != null && string.Equals(
+            Path.GetFullPath(executable),
+            ExecutablePath,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? ExtractExecutablePath(string? command)
+    {
+        if (string.IsNullOrWhiteSpace(command))
+            return null;
+        var trimmed = command.Trim();
+        if (trimmed[0] == '"')
+        {
+            var closingQuote = trimmed.IndexOf('"', 1);
+            return closingQuote > 1 ? trimmed[1..closingQuote] : null;
+        }
+        var separator = trimmed.IndexOf(' ');
+        return separator < 0 ? trimmed : trimmed[..separator];
+    }
+
+    private static string Quote(string value) => $"\"{value}\"";
+}

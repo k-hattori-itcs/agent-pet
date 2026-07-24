@@ -1,0 +1,7 @@
+{
+    "spritesheetPath":  "spritesheet.webp",
+    "spriteVersionNumber":  2,
+    "description":  "小さな開発者マスコット。作業状況とトークン使用量を見守ります。",
+    "displayName":  "Koharu",
+    "id":  "koharu"
+}

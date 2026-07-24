@@ -1,0 +1,18 @@
+{
+    "id":  "luna",
+    "displayName":  "Luna",
+    "description":  "紫系パーカーの開発者マスコット。短期枠と週間枠の利用量も見守れます。",
+    "spriteVersionNumber":  2,
+    "spritesheetPath":  "spritesheet.webp",
+    "spritesheetLayout":  {
+                              "columns":  8,
+                              "rows":  11,
+                              "cellWidth":  192,
+                              "cellHeight":  208,
+                              "lookDirectionCount":  16,
+                              "neutralLookFrame":  {
+                                                       "rowIndex":  0,
+                                                       "columnIndex":  6
+                                                   }
+                          }
+}

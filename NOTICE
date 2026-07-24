@@ -1,0 +1,19 @@
+# Notices
+
+AgentPet is a customized derivative of TokenPet.
+
+Original project:
+- Name: TokenPet
+- Repository: https://github.com/sugar301/TokenPet
+- Upstream description: local HTTP proxy desktop pet with real-time token tracking
+- Upstream license indication: MIT License, as shown in the upstream README. A separate upstream LICENSE file was not present when rechecked on 2026-07-24.
+
+Major AgentPet changes:
+- Codex rollout JSONL status monitoring
+- Claude Code JSONL status and usage monitoring
+- Always-visible token rings
+- Separate Codex / Claude operation modes through settings
+- Codex / VSCode launch or foreground behavior on pet double-click
+- Japanese settings UI and bundled Koharu / Luna pet selection
+
+Third-party package and asset notices are listed in THIRD_PARTY_NOTICES.md.
