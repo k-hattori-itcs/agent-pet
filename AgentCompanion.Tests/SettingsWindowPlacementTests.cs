@@ -52,6 +52,36 @@ public sealed class SettingsWindowPlacementTests
     }
 
     [Fact]
+    public void ResolveWindowPosition_ClampsWindowPartiallyPastRightEdge()
+    {
+        var bounds = new Rect(0, 0, 1920, 1080);
+
+        var position = SettingsWindow.ResolveWindowPosition(
+            left: 1530,
+            top: 120,
+            width: 640,
+            height: 520,
+            bounds);
+
+        Assert.Equal(new Point(1280, 120), position);
+    }
+
+    [Fact]
+    public void ResolveWindowPosition_ClampsWindowPartiallyPastBottomEdge()
+    {
+        var bounds = new Rect(0, 0, 1920, 1080);
+
+        var position = SettingsWindow.ResolveWindowPosition(
+            left: 800,
+            top: 760,
+            width: 640,
+            height: 520,
+            bounds);
+
+        Assert.Equal(new Point(800, 560), position);
+    }
+
+    [Fact]
     public void ResolveAboveAnchorPosition_PlacesWindowAboveTraySelection()
     {
         var workArea = new Rect(0, 0, 1920, 1040);

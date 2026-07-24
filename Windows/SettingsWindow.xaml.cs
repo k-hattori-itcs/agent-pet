@@ -138,12 +138,6 @@ public partial class SettingsWindow : Window
                 Math.Max(bounds.Top, bounds.Bottom - height - 40));
         }
 
-        var visibleBounds = Rect.Intersect(
-            new Rect(left, top, width, height),
-            bounds);
-        if (visibleBounds.Width >= 80 && visibleBounds.Height >= 40)
-            return new Point(left, top);
-
         var maxLeft = Math.Max(bounds.Left, bounds.Right - width);
         var maxTop = Math.Max(bounds.Top, bounds.Bottom - height);
         return new Point(
