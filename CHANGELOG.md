@@ -4,6 +4,10 @@ All notable changes are documented here.
 
 ## Unreleased
 
+No changes yet.
+
+## 1.0.1 - 2026-07-24
+
 - Anchor the settings window above the tray-menu selection and clamp it to the selected monitor work area.
 - Preserve the character's physical multi-monitor position across hide/show without forcing it visible when Settings opens.
 - Preserve customized character files while restoring missing bundled files.
