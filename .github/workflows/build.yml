@@ -33,6 +33,14 @@ jobs:
       - name: Verify formatting
         run: dotnet format AgentCompanion.sln --verify-no-changes --no-restore
 
+      - name: Verify text encoding
+        shell: pwsh
+        run: ./tools/Test-TextEncoding.ps1
+
+      - name: Verify documentation assets
+        shell: pwsh
+        run: ./tools/Test-DocumentationAssets.ps1
+
       - name: Build
         run: dotnet build AgentCompanion.sln -c Release --no-restore
 

@@ -75,6 +75,22 @@ public sealed class PetManagerTests : IDisposable
     }
 
     [Fact]
+    public void ImportPet_ReplacingActiveCharacterRaisesRefreshEvent()
+    {
+        CreateInstalledPet("safe-pet");
+        var manager = new PetManager(PetsDirectory);
+        manager.Setup();
+        var changedIds = new List<string>();
+        manager.PetChanged += changedIds.Add;
+        var zip = CreatePackage("safe-pet", "spritesheet.png");
+
+        var result = manager.ImportPet(zip);
+
+        Assert.Null(result);
+        Assert.Equal(["safe-pet"], changedIds);
+    }
+
+    [Fact]
     public void ImportPet_RejectsInvalidImageContent()
     {
         var zip = CreatePackage("safe-pet", "spritesheet.png", spriteContent: [1, 2, 3, 4]);

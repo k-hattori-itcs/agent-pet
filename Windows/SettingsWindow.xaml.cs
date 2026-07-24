@@ -1,9 +1,11 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -18,6 +20,20 @@ public partial class SettingsWindow : Window
 {
     private const double DefaultWidth = 640;
     private const double DefaultHeight = 520;
+    private const double TrayAnchorGapPixels = 12;
+    private const uint SwpNoSize = 0x0001;
+    private const uint SwpNoZOrder = 0x0004;
+    private const uint SwpNoActivate = 0x0010;
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool SetWindowPos(
+        IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
 
     private readonly App? _app;
     private PetManager? _manager;
@@ -44,7 +60,6 @@ public partial class SettingsWindow : Window
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 DragMove();
-                EnsureWindowOnScreen();
             }
         };
         UpdateEditionHeader();
@@ -65,6 +80,19 @@ public partial class SettingsWindow : Window
         base.Show();
         EnsureWindowSize();
         EnsureWindowOnScreen();
+        UpdateEditionHeader();
+        RefreshCurrentTab();
+    }
+
+    public void ShowAboveScreenPoint(System.Drawing.Point anchor)
+    {
+        EnsureWindowSize();
+        base.Show();
+        EnsureWindowSize();
+        MoveAboveScreenPoint(anchor);
+        Dispatcher.BeginInvoke(
+            () => MoveAboveScreenPoint(anchor),
+            DispatcherPriority.Loaded);
         UpdateEditionHeader();
         RefreshCurrentTab();
     }
@@ -91,18 +119,77 @@ public partial class SettingsWindow : Window
         var width = Math.Max(1, Width);
         var height = Math.Max(1, Height);
         var bounds = GetVirtualDesktopBounds();
+        var position = ResolveWindowPosition(Left, Top, width, height, bounds);
+        Left = position.X;
+        Top = position.Y;
+    }
 
-        if (!IsFinite(Left) || !IsFinite(Top))
+    internal static Point ResolveWindowPosition(
+        double left,
+        double top,
+        double width,
+        double height,
+        Rect bounds)
+    {
+        if (!IsFinite(left) || !IsFinite(top))
         {
-            Left = Math.Max(bounds.Left, bounds.Right - width - 40);
-            Top = Math.Max(bounds.Top, bounds.Bottom - height - 40);
-            return;
+            return new Point(
+                Math.Max(bounds.Left, bounds.Right - width - 40),
+                Math.Max(bounds.Top, bounds.Bottom - height - 40));
         }
 
         var maxLeft = Math.Max(bounds.Left, bounds.Right - width);
         var maxTop = Math.Max(bounds.Top, bounds.Bottom - height);
-        Left = Math.Min(Math.Max(Left, bounds.Left), maxLeft);
-        Top = Math.Min(Math.Max(Top, bounds.Top), maxTop);
+        return new Point(
+            Math.Min(Math.Max(left, bounds.Left), maxLeft),
+            Math.Min(Math.Max(top, bounds.Top), maxTop));
+    }
+
+    internal static Point ResolveAboveAnchorPosition(
+        Point anchor,
+        double width,
+        double height,
+        Rect workArea)
+    {
+        var desiredLeft = anchor.X - (width / 2);
+        var desiredTop = anchor.Y - height - TrayAnchorGapPixels;
+        var maxLeft = Math.Max(workArea.Left, workArea.Right - width);
+        var maxTop = Math.Max(workArea.Top, workArea.Bottom - height);
+
+        return new Point(
+            Math.Min(Math.Max(desiredLeft, workArea.Left), maxLeft),
+            Math.Min(Math.Max(desiredTop, workArea.Top), maxTop));
+    }
+
+    private void MoveAboveScreenPoint(System.Drawing.Point anchor)
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        if (handle == IntPtr.Zero ||
+            !GetWindowRect(handle, out var windowBounds))
+            return;
+
+        var screen = System.Windows.Forms.Screen.FromPoint(anchor);
+        var workArea = new Rect(
+            screen.WorkingArea.Left,
+            screen.WorkingArea.Top,
+            screen.WorkingArea.Width,
+            screen.WorkingArea.Height);
+        var width = Math.Max(1, windowBounds.Right - windowBounds.Left);
+        var height = Math.Max(1, windowBounds.Bottom - windowBounds.Top);
+
+        var position = ResolveAboveAnchorPosition(
+            new Point(anchor.X, anchor.Y),
+            width,
+            height,
+            workArea);
+        SetWindowPos(
+            handle,
+            IntPtr.Zero,
+            (int)Math.Round(position.X),
+            (int)Math.Round(position.Y),
+            0,
+            0,
+            SwpNoSize | SwpNoZOrder | SwpNoActivate);
     }
 
     private static Rect GetVirtualDesktopBounds()

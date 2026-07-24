@@ -58,7 +58,7 @@ public partial class App : Application
         _mainWindow.Show();
         CreateTrayIcon();
         if (showSettings)
-            Dispatcher.BeginInvoke(ShowSettings);
+            Dispatcher.BeginInvoke(() => ShowSettings());
         StartProxyIfConfigured();
         _persistOnExit = true;
 
@@ -103,7 +103,11 @@ public partial class App : Application
             null,
             (_, _) => TogglePetVisibility());
         menu.Items.Add(_togglePetMenuItem);
-        menu.Items.Add("\u8a2d\u5b9a", null, (_, _) => Dispatch(ShowSettings));
+        menu.Items.Add("\u8a2d\u5b9a", null, (_, _) =>
+        {
+            var anchor = WinForms.Control.MousePosition;
+            Dispatch(() => ShowSettings(anchor));
+        });
         menu.Items.Add(new WinForms.ToolStripSeparator());
         menu.Items.Add("\u7d42\u4e86", null, (_, _) => Dispatch(() => Current.Shutdown()));
         _trayIcon.ContextMenuStrip = menu;
@@ -158,24 +162,7 @@ public partial class App : Application
 
         try
         {
-            Directory.CreateDirectory(petsDir);
-            var assembly = Assembly.GetExecutingAssembly();
-            foreach (var name in assembly.GetManifestResourceNames())
-            {
-                if (!name.StartsWith("pets/", StringComparison.Ordinal))
-                    continue;
-                var relative = name[5..];
-                var destination = Path.Combine(petsDir, relative);
-                var destinationDirectory = Path.GetDirectoryName(destination);
-                if (destinationDirectory != null)
-                    Directory.CreateDirectory(destinationDirectory);
-
-                using var source = assembly.GetManifestResourceStream(name);
-                if (source == null)
-                    continue;
-                using var target = File.Create(destination);
-                source.CopyTo(target);
-            }
+            ExtractEmbeddedPets(Assembly.GetExecutingAssembly(), petsDir);
         }
         catch (Exception ex)
         {
@@ -183,9 +170,50 @@ public partial class App : Application
         }
     }
 
+    internal static void ExtractEmbeddedPets(Assembly assembly, string petsDir)
+    {
+        Directory.CreateDirectory(petsDir);
+        var root = Path.GetFullPath(petsDir);
+        var rootPrefix = root.EndsWith(Path.DirectorySeparatorChar)
+            ? root
+            : root + Path.DirectorySeparatorChar;
+
+        foreach (var name in assembly.GetManifestResourceNames())
+        {
+            if (!name.StartsWith("pets/", StringComparison.Ordinal))
+                continue;
+
+            var relative = name[5..].Replace('/', Path.DirectorySeparatorChar);
+            var segments = relative.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length < 2)
+                continue;
+
+            var destination = Path.GetFullPath(Path.Combine(root, relative));
+            if (!destination.StartsWith(rootPrefix, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException($"Embedded character path is outside the destination: {name}");
+
+            if (File.Exists(destination))
+                continue;
+
+            var destinationDirectory = Path.GetDirectoryName(destination);
+            if (destinationDirectory != null)
+                Directory.CreateDirectory(destinationDirectory);
+
+            using var source = assembly.GetManifestResourceStream(name);
+            if (source == null)
+                continue;
+            using var target = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+            source.CopyTo(target);
+        }
+    }
+
     public void ShowSettings()
     {
-        ShowPet();
+        ShowSettings(null);
+    }
+
+    private void ShowSettings(System.Drawing.Point? trayAnchor)
+    {
         if (_settingsWindow == null)
         {
             _settingsWindow = new SettingsWindow();
@@ -207,9 +235,16 @@ public partial class App : Application
             return;
         }
 
-        _settingsWindow.Left = _mainWindow!.Left + _mainWindow.Width + 10;
-        _settingsWindow.Top = _mainWindow.Top;
-        _settingsWindow.Show();
+        if (trayAnchor is System.Drawing.Point anchor)
+        {
+            _settingsWindow.ShowAboveScreenPoint(anchor);
+        }
+        else
+        {
+            _settingsWindow.Left = _mainWindow!.Left + _mainWindow.Width + 10;
+            _settingsWindow.Top = _mainWindow.Top;
+            _settingsWindow.Show();
+        }
         _settingsWindow.Activate();
     }
 
