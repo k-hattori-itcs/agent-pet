@@ -79,9 +79,9 @@ public class PetManager
         return _pets.FirstOrDefault(p => p.Id == _activePetId)?.DisplayName;
     }
 
-    public void SetActivePet(string petId)
+    public void SetActivePet(string petId, bool forceNotify = false)
     {
-        if (_activePetId == petId || !_pets.Any(p => p.Id == petId))
+        if (!_pets.Any(p => p.Id == petId) || (_activePetId == petId && !forceNotify))
             return;
 
         _activePetId = petId;
@@ -163,7 +163,7 @@ public class PetManager
             backupDir = null;
 
             ScanPets();
-            SetActivePet(info.Id);
+            SetActivePet(info.Id, forceNotify: true);
             PetListChanged?.Invoke();
             return null;
         }

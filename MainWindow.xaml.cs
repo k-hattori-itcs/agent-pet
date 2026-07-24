@@ -42,6 +42,7 @@ public partial class MainWindow : Window
     private Point _dragStartMouseScreen;
     private Point _dragStartWindowPos;
     private double _lastDragScreenX;
+    private RECT? _hiddenScreenBounds;
 
     private DateTime _reactiveEnd;
     private PetState _stateBeforeReactive;
@@ -62,6 +63,9 @@ public partial class MainWindow : Window
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromRect(ref RECT lprc, uint dwFlags);
+
     [StructLayout(LayoutKind.Sequential)]
     private struct POINT { public int X; public int Y; }
 
@@ -74,9 +78,22 @@ public partial class MainWindow : Window
 
     public void ShowPet()
     {
+        Point? hiddenPosition = _hiddenScreenBounds is RECT hidden
+            ? new Point(hidden.Left, hidden.Top)
+            : null;
+        var monitorAvailable = _hiddenScreenBounds is RECT bounds &&
+            IsRectangleOnMonitor(bounds);
+        var restoredPosition = ResolveRestoredScreenPosition(
+            hiddenPosition,
+            monitorAvailable);
+        _hiddenScreenBounds = null;
+
         Show();
         WindowState = WindowState.Normal;
-        EnsureWindowOnScreen();
+        if (restoredPosition is Point position)
+            MoveWindowToScreenPosition((int)Math.Round(position.X), (int)Math.Round(position.Y));
+        else
+            EnsureWindowOnScreen();
         Activate();
         KeepWindowTopmost();
     }
@@ -89,8 +106,23 @@ public partial class MainWindow : Window
             ReleaseMouseCapture();
         }
 
+        _hiddenScreenBounds = GetWindowScreenBounds();
         SyncWindowPositionFromScreen();
         Hide();
+    }
+
+    internal static Point? ResolveRestoredScreenPosition(
+        Point? hiddenPosition,
+        bool monitorAvailable)
+    {
+        return hiddenPosition.HasValue && monitorAvailable
+            ? hiddenPosition
+            : null;
+    }
+
+    private static bool IsRectangleOnMonitor(RECT bounds)
+    {
+        return MonitorFromRect(ref bounds, 0) != IntPtr.Zero;
     }
 
     public MainWindow()
@@ -382,14 +414,21 @@ public partial class MainWindow : Window
 
     private Point GetWindowScreenPosition()
     {
-        var handle = new WindowInteropHelper(this).Handle;
-        if (handle != IntPtr.Zero && GetWindowRect(handle, out var rect))
-            return new Point(rect.Left, rect.Top);
+        if (GetWindowScreenBounds() is RECT bounds)
+            return new Point(bounds.Left, bounds.Top);
 
         var source = PresentationSource.FromVisual(this);
         return source?.CompositionTarget == null
             ? new Point(Left, Top)
             : source.CompositionTarget.TransformToDevice.Transform(new Point(Left, Top));
+    }
+
+    private RECT? GetWindowScreenBounds()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        return handle != IntPtr.Zero && GetWindowRect(handle, out var rect)
+            ? rect
+            : null;
     }
 
     private void MoveWindowToScreenPosition(int left, int top)
