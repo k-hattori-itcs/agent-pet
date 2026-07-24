@@ -1,0 +1,85 @@
+<Window x:Class="AgentCompanion.Windows.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AgentCompanion 設定" Width="640" Height="520"
+        MinWidth="640" MinHeight="520"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" Topmost="True"
+        ResizeMode="NoResize" ShowInTaskbar="False"
+        FontFamily="Yu Gothic UI, Meiryo UI, Segoe UI">
+    <Window.Resources>
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#2A2A2A"/>
+            <Setter Property="BorderBrush" Value="#525252"/>
+        </Style>
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#2A2A2A"/>
+            <Setter Property="Padding" Value="8,5"/>
+        </Style>
+    </Window.Resources>
+    <Border CornerRadius="12" Background="#F01E1E1E" BorderBrush="#55FFFFFF" BorderThickness="1">
+        <Grid Margin="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="TitleText" Text="AgentCompanion 設定"
+                           Foreground="White" FontSize="17" FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+                <Border x:Name="EditionBadge" Grid.Column="1" CornerRadius="10" Padding="9,3"
+                        Margin="10,0,0,0" Background="#444444" VerticalAlignment="Center">
+                    <TextBlock x:Name="EditionBadgeText" Text="Codex監視" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                </Border>
+                <Button x:Name="CloseBtn" Grid.Column="3" Content="×"
+                        Width="32" Height="28"
+                        Background="Transparent" Foreground="#DDDDDD"
+                        BorderThickness="0" FontSize="20" Cursor="Hand"
+                        Click="CloseBtn_Click"/>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="0,12,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel x:Name="Sidebar" Margin="0,0,12,0">
+                    <Button x:Name="PetTabBtn" Content="キャラクター"
+                            Background="Transparent" Foreground="LightGray"
+                            BorderThickness="0" FontSize="14"
+                            HorizontalContentAlignment="Left"
+                            Padding="10,8" Cursor="Hand" Margin="0,0,0,5"
+                            Click="PetTabBtn_Click"/>
+                    <Button x:Name="ModelTabBtn" Content="接続"
+                            Background="Transparent" Foreground="LightGray"
+                            BorderThickness="0" FontSize="14"
+                            HorizontalContentAlignment="Left"
+                            Padding="10,8" Cursor="Hand" Margin="0,0,0,5"
+                            Click="ModelTabBtn_Click"/>
+                    <Button x:Name="AboutTabBtn" Content="情報"
+                            Background="Transparent" Foreground="LightGray"
+                            BorderThickness="0" FontSize="14"
+                            HorizontalContentAlignment="Left"
+                            Padding="10,8" Cursor="Hand" Margin="0,0,0,5"
+                            Click="AboutTabBtn_Click"/>
+                </StackPanel>
+
+                <Border Grid.Column="1" Background="#222222" CornerRadius="8" Padding="12">
+                    <ScrollViewer x:Name="ContentScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel x:Name="TabContent"/>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

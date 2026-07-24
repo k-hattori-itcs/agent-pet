@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <AssemblyName>AgentCompanion</AssemblyName>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeFrameworkVersion>8.0.28</RuntimeFrameworkVersion>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile Condition="'$(SelfContained)' == 'true'">true</EnableCompressionInSingleFile>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <AgentCompanionIcon Condition="'$(AgentCompanionIcon)' == ''">favicon.ico</AgentCompanionIcon>
+    <ApplicationIcon>$(AgentCompanionIcon)</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="pet_data\**" Link="pet_data\%(RecursiveDir)%(Filename)%(Extension)" Exclude="pet_data\pets\**;pet_data\*.log;pet_data\token_history.json;pet_data\pet_config.json;pet_data\proxy_targets.json;pet_data\*.cfg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <EmbeddedResource Include="pet_data\pets\**">
+      <LogicalName>pets/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(AgentCompanionIcon)">
+      <LogicalName>favicon.ico</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Remove="AgentCompanion.Tests\**" />
+    <EmbeddedResource Remove="AgentCompanion.Tests\**" />
+    <None Remove="AgentCompanion.Tests\**" />
+  </ItemGroup>
+</Project>

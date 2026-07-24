@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <Deterministic>true</Deterministic>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <!-- WPF owns App disposal; instance APIs and concrete bitmap return types are intentional. -->
+    <NoWarn>$(NoWarn);CA1001;CA1822;CA1859;CA1861;CA1865;CA1870</NoWarn>
+  </PropertyGroup>
+</Project>
