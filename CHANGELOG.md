@@ -6,6 +6,11 @@ All notable changes are documented here.
 
 No changes yet.
 
+## 1.1.0 - 2026-07-24
+
+- Add Natsuki, an energetic summer-themed companion with the complete AgentCompanion action set.
+- Bundle Natsuki for first-run extraction and expose her in the character selector alongside Koharu and Luna.
+
 ## 1.0.1 - 2026-07-24
 
 - Anchor the settings window above the tray-menu selection and clamp it to the selected monitor work area.

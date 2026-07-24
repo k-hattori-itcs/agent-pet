@@ -13,6 +13,8 @@ pet_data/pets/*
 !pet_data/pets/koharu/**
 !pet_data/pets/luna/
 !pet_data/pets/luna/**
+!pet_data/pets/natsuki/
+!pet_data/pets/natsuki/**
 pet_data/*.json
 pet_data/*.cfg
 pet_data/*.log
