@@ -30,6 +30,8 @@ Settings UI image for character appearance, animations, status monitoring, and s
 - Double-click to open or focus Codex / VSCode
 - Switch between Koharu and Luna
 - Tray menu for show/hide, settings, and exit
+- Open Settings directly above the tray-menu selection on the selected monitor
+- Preserve the character's physical screen position across hide/show on multi-monitor desktops
 - Optional per-install Windows startup registration
 
 ## Requirements
@@ -47,6 +49,12 @@ dotnet publish AgentCompanion.csproj -c Release -r win-x64 --self-contained true
 ```
 
 To publish with a specific default executable icon, pass `-p:AgentCompanionIcon=favicon-koharu.ico` or `-p:AgentCompanionIcon=favicon-luna.ico`. The character appearance and Codex / Claude status provider are still selected separately in the settings window.
+
+## Multi-monitor behavior
+
+When Settings is opened from the tray menu, the window is placed directly above the selected menu position and clamped to that monitor's work area. Physical pixel coordinates are used so mixed-DPI and negative-coordinate monitor layouts remain stable.
+
+Opening Settings while the character is hidden does not show or move the character. Showing the character again restores its physical position from immediately before it was hidden. If that monitor has been disconnected, the position is corrected into the currently available desktop.
 
 See [SETUP.md](./SETUP.md) for detailed Japanese setup instructions, including how to add character packages.
 
