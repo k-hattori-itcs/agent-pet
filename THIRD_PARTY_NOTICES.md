@@ -14,4 +14,4 @@ SkiaSharp is distributed under the MIT License. It is used to decode WebP pet sp
 
 ## Bundled pet artwork
 
-Koharu and Luna assets under `pet_data/pets/` are bundled AgentCompanion project assets and are distributed under this repository's MIT License unless an asset directory states otherwise.
+Koharu, Luna, and Natsuki assets under `pet_data/pets/` are bundled AgentCompanion project assets and are distributed under this repository's MIT License unless an asset directory states otherwise.

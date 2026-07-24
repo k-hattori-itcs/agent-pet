@@ -1,0 +1,18 @@
+{
+  "id": "natsuki",
+  "displayName": "Natsuki",
+  "description": "金髪と日焼け肌が印象的な、活動派の夏色コンパニオン。",
+  "spriteVersionNumber": 2,
+  "spritesheetPath": "spritesheet.webp",
+  "spritesheetLayout": {
+    "columns": 8,
+    "rows": 11,
+    "cellWidth": 192,
+    "cellHeight": 208,
+    "lookDirectionCount": 16,
+    "neutralLookFrame": {
+      "rowIndex": 0,
+      "columnIndex": 0
+    }
+  }
+}

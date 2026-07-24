@@ -5,7 +5,7 @@
 
 AgentCompanion is a Windows desktop companion app that shows Codex / Claude activity and usage around a draggable desktop character.
 
-It is a customized derivative of [sugar301/TokenPet](https://github.com/sugar301/TokenPet). AgentCompanion adds local Codex / Claude status monitoring, always-visible token rings, app launch/focus behavior, Japanese settings UI, and bundled Koharu / Luna characters.
+It is a customized derivative of [sugar301/TokenPet](https://github.com/sugar301/TokenPet). AgentCompanion adds local Codex / Claude status monitoring, always-visible token rings, app launch/focus behavior, Japanese settings UI, and bundled Koharu / Luna / Natsuki characters.
 
 ## UI Images
 
@@ -28,7 +28,7 @@ Settings UI image for character appearance, animations, status monitoring, and s
 - Switches character actions for working, completion, and error states
 - Drag the character across monitors
 - Double-click to open or focus Codex / VSCode
-- Switch between Koharu and Luna
+- Switch between Koharu, Luna, and Natsuki
 - Tray menu for show/hide, settings, and exit
 - Open Settings directly above the tray-menu selection on the selected monitor
 - Preserve the character's physical screen position across hide/show on multi-monitor desktops
@@ -57,6 +57,8 @@ When Settings is opened from the tray menu, the window is placed directly above 
 Opening Settings while the character is hidden does not show or move the character. Showing the character again restores its physical position from immediately before it was hidden. If that monitor has been disconnected, the position is corrected into the currently available desktop.
 
 See [SETUP.md](./SETUP.md) for detailed Japanese setup instructions, including how to add character packages.
+
+Natsuki is an energetic summer-themed companion covering the complete AgentCompanion action set.
 
 ## Claude Monitoring Limitations
 

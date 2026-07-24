@@ -90,7 +90,7 @@ AgentCompanion-Claude\AgentCompanion.exe
 
 ## 7. キャラクターの切替と追加
 
-`設定` -> `キャラクター` で Koharu / Luna を選択できます。
+`設定` -> `キャラクター` で Koharu / Luna / Natsuki を選択できます。
 
 キャラクターを追加する場合は、`キャラクター` タブの `キャラクターパッケージを追加` から ZIP ファイルを選択します。
 

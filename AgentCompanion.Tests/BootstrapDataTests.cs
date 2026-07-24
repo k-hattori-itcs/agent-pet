@@ -32,5 +32,13 @@ public sealed class BootstrapDataTests : IDisposable
         Assert.Equal("user customized", File.ReadAllText(existingManifest));
         Assert.True(File.Exists(Path.Combine(koharuDirectory, "spritesheet.webp")));
         Assert.True(File.Exists(Path.Combine(petsDirectory, "luna", "pet.json")));
+        Assert.True(File.Exists(Path.Combine(petsDirectory, "natsuki", "pet.json")));
+        Assert.True(File.Exists(Path.Combine(petsDirectory, "natsuki", "spritesheet.webp")));
+
+        var manager = new AgentCompanion.Services.PetManager(petsDirectory);
+        manager.Setup();
+        var natsuki = Assert.Single(manager.Pets, pet => pet.Id == "natsuki");
+        Assert.Equal("Natsuki", natsuki.DisplayName);
+        Assert.Equal("spritesheet.webp", natsuki.SpritesheetPath);
     }
 }
